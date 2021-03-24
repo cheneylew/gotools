@@ -14,5 +14,11 @@
 # Dependency directories (remove the comment below to include it)
 # vendor/
 
+# 忽略没有后缀名的文件
+*
+!/**/
+!*.*
+
 .idea
 gotools
+test
