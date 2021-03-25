@@ -9,7 +9,7 @@ import (
 	"time"
 	"github.com/cheneylew/gotools/tool"
 	"errors"
-	"github.com/tealeg/xlsx/v3"
+	"github.com/tealeg/xlsx/v2"
 )
 
 type RowItem map[string]interface{}
@@ -36,7 +36,7 @@ func GetSheetItems(sh *xlsx.Sheet) [][]string {
 	for i:=0; i<maxRow; i++ {
 		var row []string
 		for j:=0; j<maxCol; j++ {
-			cell, _:= sh.Cell(i, j)
+			cell := sh.Cell(i, j)
 			val := cell.String()
 			row = append(row, val)
 		}
@@ -52,7 +52,7 @@ func GetSheetHeader(sh *xlsx.Sheet) []string {
 		return data
 	}
 	for j:=0; j<maxCol; j++ {
-		cell, _:= sh.Cell(0, j)
+		cell := sh.Cell(0, j)
 		val := cell.String()
 		data = append(data, val)
 	}
@@ -147,7 +147,7 @@ func WriteExcel(tplFile string, data [][]string) (string, error) {
 		panic(err)
 	}
 	sheet := wb.Sheets[0]
-
+	fmt.Println(sheet.MaxRow)
 	if len(wb.Sheets) > 1 {
 		dataVerifySheet := wb.Sheets[len(wb.Sheets)-1]
 		if dataVerifySheet.Name == "数据验证" {
@@ -171,7 +171,7 @@ func WriteExcel(tplFile string, data [][]string) (string, error) {
 				}
 				if dataVerifys != nil {
 					for _, dv := range dataVerifys {
-						dd := xlsx.NewDataValidation(sheet.MaxRow, dv.ColIndex, sheet.MaxRow+len(data),  dv.ColIndex, true)
+						dd := xlsx.NewDataValidation(sheet.MaxRow, dv.ColIndex, sheet.MaxRow+len(data)+100*1000,  dv.ColIndex, true)
 						err = dd.SetDropList(dv.Items)
 						if err == nil {
 							sheet.AddDataValidation(dd)
@@ -186,7 +186,7 @@ func WriteExcel(tplFile string, data [][]string) (string, error) {
 	var fields []string
 	fieldsMap := make(map[string]int, 0)
 	for i:=0; i< sheet.MaxCol ; i++ {
-		cell, _:= sheet.Cell(1, i)
+		cell := sheet.Cell(1, i)
 		val := cell.String()
 		fields = append(fields, val)
 		fieldsMap[val] = i
@@ -201,12 +201,12 @@ func WriteExcel(tplFile string, data [][]string) (string, error) {
 	startRowIndex := sheet.MaxRow
 	for index := startRowIndex; index < startRowIndex+len(data); index++ {
 		for colIndex:=0; colIndex<sheet.MaxCol; colIndex++ {
-			cell, _ := sheet.Cell(index, colIndex)
+			cell := sheet.Cell(index, colIndex)
 			//https://github.com/tealeg/xlsx/blob/master/tutorial/tutorial.adoc#assigning-a-style
 			//fmt.Println(*cell.GetStyle())
 
 			cell.GetStyle().Fill.FgColor = fontColor
-			cell.GetStyle().Font.Size = float64(fontSize)
+			cell.GetStyle().Font.Size = fontSize
 			cell.GetStyle().Border.Bottom = borderType
 			cell.GetStyle().Border.Right = borderType
 			cell.GetStyle().Border.Left = borderType
