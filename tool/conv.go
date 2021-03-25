@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strconv"
 	"encoding/base64"
+	"encoding/json"
 )
 
 func ToString(i interface{}) string {
@@ -52,4 +53,9 @@ func Base64Decode(str string) (string, error) {
 		return "", err
 	}
 	return string(b), nil
+}
+
+func ToJsonString(i interface{}) (string, error) {
+	b, e := json.Marshal(i)
+	return string(b), e
 }

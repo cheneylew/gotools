@@ -2,7 +2,6 @@ package excel
 
 import (
 	"strings"
-	"github.com/tealeg/xlsx"
 	"fmt"
 	"path"
 	"os"
@@ -10,6 +9,7 @@ import (
 	"time"
 	"github.com/cheneylew/gotools/tool"
 	"errors"
+	"github.com/tealeg/xlsx/v3"
 )
 
 type RowItem map[string]interface{}
@@ -23,6 +23,12 @@ type ExcelData struct {
 	Sheets []SheetData `json:"sheets"`
 }
 
+type DataVerify struct {
+	ColIndex int
+	Name string
+	Items []string
+}
+
 func GetSheetItems(sh *xlsx.Sheet) [][]string {
 	maxCol := sh.MaxCol
 	maxRow := sh.MaxRow
@@ -30,13 +36,36 @@ func GetSheetItems(sh *xlsx.Sheet) [][]string {
 	for i:=0; i<maxRow; i++ {
 		var row []string
 		for j:=0; j<maxCol; j++ {
-			cell := sh.Cell(i, j)
+			cell, _:= sh.Cell(i, j)
 			val := cell.String()
 			row = append(row, val)
 		}
 		data = append(data, row)
 	}
 	return  data
+}
+
+func GetSheetHeader(sh *xlsx.Sheet) []string {
+	maxCol := sh.MaxCol
+	var data []string
+	if sh.MaxRow == 0 {
+		return data
+	}
+	for j:=0; j<maxCol; j++ {
+		cell, _:= sh.Cell(0, j)
+		val := cell.String()
+		data = append(data, val)
+	}
+	return  data
+}
+
+func findIndex(arr []string,search string) int {
+	for key, value := range arr {
+		if value == search {
+			return key
+		}
+	}
+	return -1
 }
 
 //https://github.com/tealeg/xlsx/blob/master/tutorial/tutorial.adoc
@@ -119,10 +148,45 @@ func WriteExcel(tplFile string, data [][]string) (string, error) {
 	}
 	sheet := wb.Sheets[0]
 
+	if len(wb.Sheets) > 1 {
+		dataVerifySheet := wb.Sheets[len(wb.Sheets)-1]
+		if dataVerifySheet.Name == "数据验证" {
+			header := GetSheetHeader(sheet)
+			dvData := GetSheetItems(dataVerifySheet)
+			if len(dvData) > 0 {
+				var dataVerifys []*DataVerify
+				for rowIndex, Item := range dvData {
+					for colIndex, value := range Item {
+						if rowIndex == 0 {
+							dataVerify := new(DataVerify)
+							dataVerifys = append(dataVerifys, dataVerify)
+							dataVerify.Name = value
+							dataVerify.ColIndex = findIndex(header, value)
+						} else {
+							if value != "" {
+								dataVerifys[colIndex].Items = append(dataVerifys[colIndex].Items, value)
+							}
+						}
+					}
+				}
+				if dataVerifys != nil {
+					for _, dv := range dataVerifys {
+						dd := xlsx.NewDataValidation(sheet.MaxRow, dv.ColIndex, sheet.MaxRow+len(data),  dv.ColIndex, true)
+						err = dd.SetDropList(dv.Items)
+						if err == nil {
+							sheet.AddDataValidation(dd)
+						}
+					}
+				}
+			}
+		}
+	}
+
+
 	var fields []string
 	fieldsMap := make(map[string]int, 0)
 	for i:=0; i< sheet.MaxCol ; i++ {
-		cell := sheet.Cell(1, i)
+		cell, _:= sheet.Cell(1, i)
 		val := cell.String()
 		fields = append(fields, val)
 		fieldsMap[val] = i
@@ -137,12 +201,12 @@ func WriteExcel(tplFile string, data [][]string) (string, error) {
 	startRowIndex := sheet.MaxRow
 	for index := startRowIndex; index < startRowIndex+len(data); index++ {
 		for colIndex:=0; colIndex<sheet.MaxCol; colIndex++ {
-			cell := sheet.Cell(index, colIndex)
+			cell, _ := sheet.Cell(index, colIndex)
 			//https://github.com/tealeg/xlsx/blob/master/tutorial/tutorial.adoc#assigning-a-style
 			//fmt.Println(*cell.GetStyle())
 
 			cell.GetStyle().Fill.FgColor = fontColor
-			cell.GetStyle().Font.Size = fontSize
+			cell.GetStyle().Font.Size = float64(fontSize)
 			cell.GetStyle().Border.Bottom = borderType
 			cell.GetStyle().Border.Right = borderType
 			cell.GetStyle().Border.Left = borderType
