@@ -147,7 +147,6 @@ func WriteExcel(tplFile string, data [][]string) (string, error) {
 		panic(err)
 	}
 	sheet := wb.Sheets[0]
-	fmt.Println(sheet.MaxRow)
 	if len(wb.Sheets) > 1 {
 		dataVerifySheet := wb.Sheets[len(wb.Sheets)-1]
 		if dataVerifySheet.Name == "数据验证" {
