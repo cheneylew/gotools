@@ -1,6 +1,10 @@
 package tool
 
-import "strings"
+import (
+	"strings"
+	"fmt"
+	"reflect"
+)
 
 //数组字符串包含，即为true
 func ArrContain(arr []string, search string) bool {
@@ -22,4 +26,18 @@ func ArrIn(arr []string, search string) bool {
 	}
 
 	return false
+}
+
+func ArrToInterfaces(slices interface{}) []interface{} {
+	v := reflect.ValueOf(slices)
+	if v.Kind() != reflect.Ptr {
+		Println("123")
+	}
+	var res []interface{}
+	switch slices.(type) {
+	case []interface{}:
+		fmt.Println("abcd")
+	}
+
+	return res
 }
