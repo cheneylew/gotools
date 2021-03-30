@@ -85,7 +85,7 @@ func ReadExcel(file string) (*ExcelData, error) {
 	}
 
 	if err != nil {
-		return nil, tool.ErrorLineWithMSG("Excel已损坏，请重新上传！错误为：%v", err)
+		return nil, tool.ErrorWithMSG("Excel已损坏，请重新上传！错误为：%v", err)
 	}
 
 	var sheets []SheetData
@@ -135,7 +135,7 @@ func WriteExcel(tplFile string, data [][]string) (string, error) {
 	if isHttpUrl {
 		bytes, e := tool.DownloadFileToBytes(tplFile)
 		if e != nil {
-			return "", tool.ErrorLineWithMSG("下载Excel TPL模板失败:%v", err)
+			return "", tool.ErrorWithMSG("下载Excel TPL模板失败:%v", err)
 		}
 
 		wb, err = xlsx.OpenBinary(bytes)
@@ -223,7 +223,7 @@ func WriteExcel(tplFile string, data [][]string) (string, error) {
 	tmpDirName := "tmp"
 	if _, err := os.Stat(tmpDirName); os.IsNotExist(err) {
 		err = os.Mkdir(tmpDirName, os.ModePerm)
-		return "", tool.ErrorLineWithMSG("写Excel，建临时目录失败!", err)
+		return "", tool.ErrorWithMSG("写Excel，建临时目录失败!", err)
 	}
 
 	rand.Seed(time.Now().UnixNano())
