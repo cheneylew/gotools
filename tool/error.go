@@ -48,6 +48,10 @@ func Println(a ...interface{})  {
 	fmt.Println(ErrorMSG(msg))
 }
 
-func Printf(format string, a ...interface{}) string {
-	return Sprintf(format, a...)
+func Printf(format string, a ...interface{}) {
+	fmt.Print(Sprintf(format, a...))
+}
+
+func Printfln(format string, a ...interface{}) {
+	fmt.Println(Sprintf(format+"", a...))
 }

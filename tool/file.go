@@ -8,8 +8,16 @@ import (
 	"io"
 )
 
-func WriteFile(path string, content string) error {
-	return ioutil.WriteFile(path, []byte(content), 0777)
+func WriteFile(filename string, content string) error {
+	f, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0777)
+	if err != nil {
+		return err
+	}
+	_, err = f.Write([]byte(content))
+	if err1 := f.Close(); err == nil {
+		err = err1
+	}
+	return err
 }
 
 func ReadFile(path string) ([]byte, error) {

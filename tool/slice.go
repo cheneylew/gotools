@@ -2,8 +2,8 @@ package tool
 
 import (
 	"strings"
-	"fmt"
 	"reflect"
+	"fmt"
 )
 
 //数组字符串包含，即为true
@@ -28,16 +28,19 @@ func ArrIn(arr []string, search string) bool {
 	return false
 }
 
-func ArrToInterfaces(slices interface{}) []interface{} {
-	v := reflect.ValueOf(slices)
-	if v.Kind() != reflect.Ptr {
-		Println("123")
+func ArrToInterfaces(arr interface{}) ([]interface{},error) {
+	v := reflect.ValueOf(arr)
+	fmt.Println(v.Kind())
+	if v.Kind() != reflect.Slice {
+		return nil, ErrorMSG("arr必须为slice类型")
 	}
 	var res []interface{}
-	switch slices.(type) {
-	case []interface{}:
-		fmt.Println("abcd")
+	switch reflect.TypeOf(arr).Kind() {
+	case reflect.Slice:
+		s := reflect.ValueOf(arr)
+		for i := 0; i < s.Len(); i++ {
+			res = append(res, s.Index(i).Interface())
+		}
 	}
-
-	return res
+	return res, nil
 }
