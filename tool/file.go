@@ -86,6 +86,12 @@ func WriteLines(lines []string, path string) error {
 	return w.Flush()
 }
 
+// Exist returns true if a file or directory exists.
+func FileExist(name string) bool {
+	_, err := os.Stat(name)
+	return err == nil
+}
+
 func DownloadFileToBytes(url string) ([]byte, error) {
 	var client http.Client
 	resp, err := client.Get(url)
