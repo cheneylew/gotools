@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"bufio"
+	"encoding/json"
 )
 
 func ReadFile(path string) ([]byte, error) {
@@ -39,6 +40,14 @@ func WriteFile(filename string, content string) error {
 	return err
 }
 
+func WriteFileWithInterface(filename string, v interface{}) error {
+	res, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	return WriteFile(filename, string(res))
+}
+
 
 func AppendFile(filename string, content string) error {
 	f, err := os.OpenFile(filename,
@@ -52,6 +61,14 @@ func AppendFile(filename string, content string) error {
 	}
 
 	return nil
+}
+
+func AppendFileWithInterface(filename string, v interface{}) error {
+	res, err := json.Marshal(v)
+	if err != nil {
+		return err
+	}
+	return AppendFile(filename, string(res))
 }
 
 // readLines reads a whole file into memory
