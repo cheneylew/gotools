@@ -44,3 +44,14 @@ func ArrToInterfaces(arr interface{}) ([]interface{},error) {
 	}
 	return res, nil
 }
+
+func Filter(array interface{}, fc func(item interface{}) bool) []interface{} {
+	arr, _ := ArrToInterfaces(array)
+	res := make([]interface{}, 0)
+	for _, value := range arr {
+		if fc(value) {
+			res = append(res, value)
+		}
+	}
+	return res
+}
