@@ -3,7 +3,6 @@ package tool
 import (
 	"strings"
 	"reflect"
-	"fmt"
 )
 
 //数组字符串包含，即为true
@@ -30,7 +29,6 @@ func ArrIn(arr []string, search string) bool {
 
 func ArrToInterfaces(arr interface{}) ([]interface{},error) {
 	v := reflect.ValueOf(arr)
-	fmt.Println(v.Kind())
 	if v.Kind() != reflect.Slice {
 		return nil, ErrorMSG("arr必须为slice类型")
 	}
