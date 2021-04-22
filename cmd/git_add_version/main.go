@@ -6,5 +6,5 @@ import (
 
 func main() {
 	exec.Command("git", "add", "*").CombinedOutput()
-	exec.Command("git", "add", "*").CombinedOutput()
+	exec.Command("git", "commit", "*", "-m", "'++'").CombinedOutput()
 }
