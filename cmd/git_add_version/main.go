@@ -17,7 +17,6 @@ func main() {
 	version := strings.Split(strings.Trim(string(tagOut), " \n"), "\n")
 	maxVersion := version[len(version)-1]
 	maxVersion = strings.Trim(maxVersion, "v")
-	fmt.Println(maxVersion)
 	vs := tool.ArrMap(func(a string) int {return tool.ToInt(a)}, strings.Split(maxVersion, ".")).([]int)
 	for i:=len(vs)-1; i>=0; i-- {
 		if vs[i] == 9 && vs[i-1] == 9 {
