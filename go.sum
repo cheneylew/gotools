@@ -1,3 +1,5 @@
+github.com/JohnCGriffin/yogofn v0.0.0-20170613212352-43d7b79df9f1 h1:+SftkBQBf548OMFt+kl82ke+mLDYCtM4FpodgWtJufk=
+github.com/JohnCGriffin/yogofn v0.0.0-20170613212352-43d7b79df9f1/go.mod h1:JpumcwO/TPSgPmNVMW8jIGy46QJJijsS1PunvplPsPw=
 github.com/cheneylew/gotools/excel v0.0.0-20210325011852-263739c1ea1d h1:iPNBAD37hzx6Zs6Yn6HOe908mBIHpNm7t5wBRwVzexI=
 github.com/cheneylew/gotools/excel v0.0.0-20210325011852-263739c1ea1d/go.mod h1:opN4cjNoUa4vZRpDD5U9QWqjEwkS7IqP8a41d9325Do=
 github.com/frankban/quicktest v1.5.0/go.mod h1:jaStnuzAqU1AJdCO0l53JDCJrVDKcS03DbaAcR7Ks/o=

@@ -3,6 +3,7 @@ package tool
 import (
 	"strings"
 	"reflect"
+	"github.com/JohnCGriffin/yogofn"
 )
 
 //数组字符串包含，即为true
@@ -43,13 +44,22 @@ func ArrToInterfaces(arr interface{}) ([]interface{},error) {
 	return res, nil
 }
 
-func ArrFilter(array interface{}, fc func(item interface{}) bool) []interface{} {
-	arr, _ := ArrToInterfaces(array)
-	res := make([]interface{}, 0)
-	for _, value := range arr {
-		if fc(value) {
-			res = append(res, value)
-		}
-	}
-	return res
+func ArrFilter(function interface{}, collection interface{}) interface{} {
+	return yogofn.Filter(function, collection)
+}
+
+func ArrMap(function interface{}, collection ...interface{}) interface{} {
+	return yogofn.Map(function, collection...)
+}
+
+func ArrAny(function interface{}, collection ...interface{}) bool {
+	return yogofn.Any(function, collection...)
+}
+
+func ArrEvery(function interface{}, collection ...interface{}) bool {
+	return yogofn.Every(function, collection...)
+}
+
+func ArrReduce(collection interface{} , binary interface{}, init ...interface{}) interface{} {
+	return yogofn.Reduce(binary, collection, init...)
 }
