@@ -27,6 +27,14 @@ func ToInt32(str string) int32 {
 	return int32(it)
 }
 
+func ToInt(str string) int {
+	it, err := strconv.Atoi(str)
+	if err != nil {
+		return 0
+	}
+	return int(it)
+}
+
 func ToInt64(str string) int64 {
 	it, err := strconv.Atoi(str)
 	if err != nil {
