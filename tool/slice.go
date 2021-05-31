@@ -63,3 +63,23 @@ func ArrEvery(function interface{}, collection ...interface{}) bool {
 func ArrReduce(collection interface{} , binary interface{}, init ...interface{}) interface{} {
 	return yogofn.Reduce(binary, collection, init...)
 }
+
+func MergeStrings(a ...[]string) []string {
+	var res []string
+	for _, i2 := range a {
+		for _, i3 := range i2 {
+			res = append(res, i3)
+		}
+	}
+	return res
+}
+
+func MergeObjects(a ...[]interface{}) []interface{} {
+	var res []interface{}
+	for _, i2 := range a {
+		for _, i3 := range i2 {
+			res = append(res, i3)
+		}
+	}
+	return res
+}
