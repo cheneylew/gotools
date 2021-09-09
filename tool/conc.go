@@ -1,8 +1,11 @@
 package tool
 
 import (
-	"math"
+	"errors"
 	"fmt"
+	"math"
+	"reflect"
+	"sync"
 )
 
 type ChanData struct {
@@ -11,35 +14,77 @@ type ChanData struct {
 	Items []interface{}
 }
 
-func Conc(jobs []interface{}, process func(a interface{})) {
-	ch := make(chan bool)
+func Conc(jobs []interface{}, process func(a interface{}))  {
+	var wg sync.WaitGroup
 	for _, job := range jobs {
-		go func(c chan bool, job interface{}) {
+		wg.Add(1)
+		go func(job interface{}) {
 			process(job)
-			c <- true
-		}(ch, job)
+			wg.Done()
+		}(job)
 	}
+	wg.Wait()
+}
 
-	finished := 0
-	exit := false
-	for {
-
-		select {
-		case ok := <-ch:
-			if ok {
-				finished++
-			}
-			if finished == len(jobs) {
-				exit = true
-				break
+//按指定并发执行，如果process遇到错误，则停止后续协程，终止
+func ConcQueueV2(maxConc uint8, items interface{}, sliceSize int, process func(items[]interface{}) ([]interface{}, error)) ([]interface{}, error) {
+	if reflect.TypeOf(items).Kind() != reflect.Slice {
+		return nil, errors.New("items请传入一个slice类型")
+	}
+	groupChan := make(chan []interface{})
+	resultChan := make(chan []interface{})
+	var exitError error
+	go func(items interface{}) {
+		defer close(groupChan) //全部传完后关掉
+		//分组传入通道缓冲区，异步不阻塞
+		var sliceItems []interface{}
+		s := reflect.ValueOf(items)
+		for i:=0; i<s.Len(); i++ {
+			sliceItems = append(sliceItems, s.Index(i).Interface())
+			if len(sliceItems) == sliceSize {
+				groupChan<-sliceItems
+				sliceItems = []interface{}{}
 			}
 		}
-		if exit {
-			break
+		if len(sliceItems) > 0 {
+			groupChan <- sliceItems
 		}
+	}(items)
+	go func() {
+		var wg sync.WaitGroup
+		maxConcChan := make(chan struct{}, maxConc) //控制最大并发数量
+		defer close(resultChan)
+		defer close(maxConcChan)
+		var lock sync.Mutex
+		for sliceItems := range groupChan {
+			maxConcChan<- struct{}{}
+			if exitError != nil {
+				<-maxConcChan
+				continue //让分组数组走完，能够正常关闭通道
+			}
+			//每组开启一个协程处理任务
+			wg.Add(1)
+			go func(sliceItems []interface{}) {
+				defer wg.Done()
+				result, err := process(sliceItems)
+				if err != nil {
+					lock.Lock()
+					exitError = errors.New(fmt.Sprintf("error:%v array:%v", err, sliceItems))
+					lock.Unlock()
+				} else {
+					resultChan <- result
+				}
+				<-maxConcChan
+			}(sliceItems)
+		}
+		//等到全部完成
+		wg.Wait() //全部执行完了
+	}()
+	var results []interface{}
+	for result := range resultChan {
+		results = append(results, result...)
 	}
-
-	close(ch)
+	return results, exitError
 }
 
 func ConcQueue(jobs []interface{}, process func(jobsSlice []interface{}) []interface{}, maxConc uint8, sliceSize int) []interface{} {
